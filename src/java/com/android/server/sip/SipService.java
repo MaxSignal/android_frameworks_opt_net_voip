@@ -100,6 +100,12 @@ public final class SipService extends ISipService.Stub {
      * device.
      */
     public static void start(Context context) {
+        // The service holds a WifiLock unconditionally; without Wi-Fi (no
+        // wifi service on this device) it cannot run.
+        if (context.getSystemService(Context.WIFI_SERVICE) == null) {
+            if (DBG) slog("start: no Wi-Fi service, SIP disabled");
+            return;
+        }
         if (SipManager.isApiSupported(context)) {
             if (ServiceManager.getService("sip") == null) {
                 ServiceManager.addService("sip", new SipService(context));
